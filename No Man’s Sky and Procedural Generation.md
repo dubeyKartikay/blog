@@ -28,15 +28,15 @@ But the idea is not totally scrap, all we really need is some sort of smoothness
 
 If you are confused by my wording, which of these look more natural?
 
-![Figure_1.png](No%20Man%E2%80%99s%20Sky%20and%20Procedural%20Generation%209f2d68da242c49b1b8ef0f790c1e74f4/Figure_1.png)
+![Figure_1.png](https://github.com/dubeyKartikay/blog/blob/cbe087679d0477385ee918df9bc64eb1b0791e07/No%20Man%E2%80%99s%20Sky%20and%20Procedural%20Generation/Figure_1.png)
 
-![Figure_1.png](No%20Man%E2%80%99s%20Sky%20and%20Procedural%20Generation%209f2d68da242c49b1b8ef0f790c1e74f4/Figure_1%201.png)
+![Figure_1.png](https://github.com/dubeyKartikay/blog/blob/cbe087679d0477385ee918df9bc64eb1b0791e07/No%20Man%E2%80%99s%20Sky%20and%20Procedural%20Generation/Figure_1%201.png)
 
 The latter graph looks to be more like a hilly area right? While the first one is just too chaotic to resemble anything natural.
 
 But no place is that hilly you say? well look at this graph
 
-![Figure_1.png](No%20Man%E2%80%99s%20Sky%20and%20Procedural%20Generation%209f2d68da242c49b1b8ef0f790c1e74f4/Figure_1%202.png)
+![Figure_1.png](https://github.com/dubeyKartikay/blog/blob/cbe087679d0477385ee918df9bc64eb1b0791e07/No%20Man%E2%80%99s%20Sky%20and%20Procedural%20Generation/Figure_1%202.png)
 
 all i really did was scale the small y values to -1 and 1 and everything else to -100 and +100.
 
@@ -46,7 +46,7 @@ Perlin noise on its own is not good enough to generate realistic looking areas b
 
 Heres the same things but in 3 dimensions,   
 
-![Figure_1.png](No%20Man%E2%80%99s%20Sky%20and%20Procedural%20Generation%209f2d68da242c49b1b8ef0f790c1e74f4/Figure_1%203.png)
+![Figure_1.png](https://github.com/dubeyKartikay/blog/blob/cbe087679d0477385ee918df9bc64eb1b0791e07/No%20Man%E2%80%99s%20Sky%20and%20Procedural%20Generation/Figure_1%203.png)
 
 This forms the basis for procedural generation in all games whether it is Minecraft or No Man’s Sky. 
 
