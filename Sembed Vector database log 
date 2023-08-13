@@ -49,7 +49,7 @@ Using this information is easy to guess what the search engine should do.
 
 **Step 3:** get the documents whose word embedding vector is close to the query’s vector.
 
-# Tackling the problem of storing huge vectors and retrieving K closest vectors from a query vector.
+## Tackling the problem of storing huge vectors and retrieving K closest vectors from a query vector.
 
 **Step 2:** and **Step 3:** were easy to type out but not easy to implement.
 
