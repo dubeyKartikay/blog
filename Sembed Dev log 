@@ -1,0 +1,176 @@
+# Sembed Dev log #2: Setting up CMake and GoogleTest
+
+If you plan to do a big project in C++, you must use CMake. Sure, there are other build systems, but since CMake is so old, it has somewhat become an industry standard.  
+
+Ironically though, CMake is not easy, and their official documentation is …  cryptic, to say the least.
+
+In this blog, I’ll walk you through how I approached using CMake in Sembed and set up the GoogleTest testing framework for Sembed.
+
+## CMake 101
+
+CMake is a scripting language used to generate Makefiles because, for big projects, manually writing Makefiles becomes cumbersome.
+
+Each project contains a “master” or root-level CMakeLists.txt file. This is the file in which we will do most of our CMake stuff.
+
+For example, here’s the root directory for the Sembed project:
+
+![Can you see the CMakeLists.txt file?](https://i.imgur.com/iccl0n0.png)
+
+Can you see the CMakeLists.txt file?
+
+To run CMake and generate the makefile for your project, make a **build** folder, ****cd**** into that folder, and run:
+
+ 
+
+```bash
+Cmake ..
+```
+
+If your CMakeLists.txt file is correct, the above command will generate the makefile for your project.
+
+## The CMakeLists.txt file
+
+### Boilerplate headers
+
+You want to start any CMakeLists.txt file with
+
+```bash
+cmake_minimum_required(VERSION 3.10)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+```
+
+Nice, but what do they do?
+
+- *cmake_minimum_required(VERSION 3.10) -*  sets the minimum required version of Cmake to build this project. You might want to use some other version if 3.10 is too old.
+- *set(CMAKE_CXX_STANDARD 17) -* sets the C++ version to C++17 for this project. If you are using a more modern version of C++, like C++20 or C++23, you’d want to change this command as well.
+- *set(CMAKE_CXX_STANDARD_REQUIRED ON) -* This will make CMake throw an error if the compiler doesn't support the C++ version you specified.
+- *set(CMAKE_EXPORT_COMPILE_COMMANDS ON) -* If you are not using neovim or text editors that use the ******clangd****** language server, you don’t need this line. 
+It exports the compile commands so that your LSP can tell which file is where and what can be included.
+
+### Setting up a project
+
+ Lets now add some commands to compile a simple hello world program
+
+```bash
+project(hello_world VERSION 1.0)
+add_executable(hello_world ${CMAKE_CURRENT_SOURCE_DIR}/src/main/main.cpp)
+```
+
+The *project(hello_world VERSION 1.0)* is pretty self-explanatory and doesn't do much on its own.
+
+ The line that is most important here is `add_executable(hello_world ${CMAKE_CURRENT_SOURCE_DIR}/src/main/main.cpp)`. **********hello_world********** is the name of the executable and 
+
+*${CMAKE_CURRENT_SOURCE_DIR}/src/main/main.cpp* is the location for its source file.
+
+is good practice to have *${CMAKE_CURRENT_SOURCE_DIR}/src/main/main.cpp *****rather than *src/main/main.cpp* because then CMake will work no matter what our current directory is when executing the **********cmake********** command.
+
+Also, if you have not caught on, *${VARIABLE_NAME}* is how you use a variable in Cmake.
+
+### Adding include files
+
+If your project requires you to use CMake then your project must be more complicated than the above program. If you are working with multiple source files, then it's standard practice to separate out your declarations and definitions. They go into a *.hpp* and a *.cpp* file, respectively. 
+
+It is also standard practice to collect all the header files (.hpp files) in a directory named *include*. 
+
+but you have to tell cmake where this *include* directory is.
+
+```bash
+include_directories(hello_world PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/include)
+```
+
+This is how you do that.
+
+### Adding libraries
+
+If you have multiple source files. you might want to compile some of them as a library and statically link them with your main executable.
+
+```bash
+set(LIB_SRC_FILES 
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/randomUtils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/inMemDataset.cpp
+    )
+
+add_library(utils STATIC ${LIB_SRC_FILES})
+
+target_link_libraries(hello_world PUBLIC utils)
+```
+
+The ***set*** keyword is used to define a variable. This variable can also store the location of files, *set(LIB_SRC_FILES …)* does exactly that.
+
+the ************add_library************  command compiles a library named *utils* (or whatever you specify) from the *${LIB_SRC_FILES}.*
+
+lastly, you have to link this library with your main executable, *********************target_link_libraries********************* does exactly that.
+
+## Setting up testing with GoogleTest
+
+You can avoid writing tests for your code, but sooner or later, you will regret it. Especially if the project you are working on is non-trivial and has a huge scope.
+
+There are a couple of testing frameworks you can use I used The GoogleTest framework because it had the clearest documentation.
+
+there are a couple of ways to install this framework. In their official documentation, they recommend using ***fetchContent()*** in CMake. I did not take that route. As a true C++ dev, we will build it from source.
+
+### Step 1: Get the source for GoogleTest
+
+Make a directory called ‘external’ in your root source folder, we will use this directory to store the code of any external libraries that we use.
+
+Now we’ll get the source code from GitHub. You can download the .zip file and extract it into the external folder, but doing this is sub-optimal, mainly this makes collaboration with other devs needlessly complicated. A better way to do this is to use **********git submodules**********.
+
+cd into the root folder of your project and type this command:
+
+```bash
+git submodule add https://github.com/google/googletest.git external/googletest
+```
+
+This command adds a new submodule from “https://github.com/google/googletest.git” and stores it in the “external/googletest” folder.
+
+### Step 2: Add the external folder to your build process
+
+This is a simple one-liner, just go into your root CMakeLists.txt file and add
+
+```bash
+add_subdirectory(external)
+```
+
+That’s it.
+
+### Step 3: Add all the external frameworks to your build process
+
+***************************add_subdirectory(external)*************************** Tells CMake to go look for a CMakeLists.txt file in the “external” folder and do whatever it says to do.
+
+So we have to create a CMakeLists.txt file in the external folder and tell it to build the GoogleTest framework.
+
+ cd into “external” and create a CMakeLists.txt file.
+
+The contents for this file, for now, will be
+
+```bash
+set(CMAKE_CXX_STANDARD 17)
+add_subdirectory(googletest)
+```
+
+googletest comes with its own CMakeLists.txt file which compiles the testing framework for us, we just have to tell CMake to look for it.
+
+That’s it. We have compiled the GoogleTest framework, now we just have to link it to our test executable, and we will be able to use it in our project.
+
+### Step 4: Link GoogleTest libraries and create a test executable.
+
+Add the following lines of code to your root CMakeLists.txt folder.
+
+```bash
+enable_testing()
+set(TEST_SRC_FILES 
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests/Test_diskUtils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests/Test_inMemory.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests/Test_hdvec.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests/Test_greedySearch.cpp
+)
+
+add_executable(Test ${TEST_SRC_FILES}) 
+target_link_libraries(Test PUBLIC GTest::gtest_main)
+include(GoogleTest)
+gtest_discover_tests(Test)
+```
+
+Our project will now create an executable named *Test,* and we can run it to run all of our tests. Alternatively, you can also use ctest.
